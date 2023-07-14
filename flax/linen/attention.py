@@ -185,7 +185,7 @@ def dot_product_attention(query: Array,
 
   # return weighted sum over values for each query position
   return jnp.einsum('...hqk,...khd->...qhd', attn_weights, value,
-                    precision=precision)
+                    precision=precision), attn_weights
 
 
 class MultiHeadDotProductAttention(Module):
@@ -331,7 +331,7 @@ class MultiHeadDotProductAttention(Module):
       m_deterministic = True
 
     # apply attention
-    x = self.attention_fn(
+    x, attention_weights = self.attention_fn(
         query,
         key,
         value,
@@ -355,7 +355,7 @@ class MultiHeadDotProductAttention(Module):
         dot_general=self.out_dot_general,
         name='out', # type: ignore[call-arg]
     )(x)
-    return out
+    return out, attention_weights
 
 
 class SelfAttention(MultiHeadDotProductAttention):
